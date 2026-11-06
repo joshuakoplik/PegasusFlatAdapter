@@ -48,6 +48,10 @@ git tag v1.1.0 && git push origin v1.1.0
 
 Tags must look like `v1.2.3`.
 
+You can also release from the GitHub website: **Releases → Draft a new release**, type a new
+tag such as `v1.1.0`, and click **Publish release**. That creates the tag, and the workflow
+attaches the installer to the release a few minutes later.
+
 ## Install
 
 1. Install the ASCOM Platform and the Pegasus Astro ASCOM drivers (Unity or the stand-alone driver for your box).
