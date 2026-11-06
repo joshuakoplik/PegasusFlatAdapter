@@ -36,7 +36,7 @@ after the `dotnet build`. The output is `installer\PegasusFlatPanelSetup-1.0.0.e
 ### GitHub Actions
 
 `.github/workflows/build.yml` runs the tests and builds the driver and the installer on every
-push and pull request. Download the installer from the run's **Artifacts** section on the
+push to any branch. Download the installer from the run's **Artifacts** section on the
 Actions tab.
 
 To publish a release, push a version tag. The workflow then creates a GitHub Release with
