@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AssemblyName>ASCOM.PegasusFlatPanel.CoverCalibrator</AssemblyName>
+    <RootNamespace>ASCOM.PegasusFlatPanel</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <!-- COM in-process driver: the assembly must be COM visible and the
+         ASCOM dependencies must sit next to it when registered with /codebase. -->
+    <ComVisible>true</ComVisible>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Version>1.0.0</Version>
+    <Product>Pegasus PWM Flat Panel (ASCOM CoverCalibrator wrapper)</Product>
+    <Description>ASCOM CoverCalibrator driver that drives a flat panel from a PWM output of a Pegasus Astro power box via its ASCOM Switch driver.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.InteropServices.GuidAttribute">
+      <_Parameter1>657c7fbe-3a49-40fb-95cc-b819359e9739</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ASCOM.DeviceInterfaces" Version="7.1.2" />
+    <!-- Lets the project build on machines without the .NET Framework targeting pack (e.g. CI / Linux). -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+
+</Project>
