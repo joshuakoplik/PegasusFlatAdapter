@@ -33,6 +33,21 @@ To build the installer as well, install [NSIS](https://nsis.sourceforge.io) and 
 `build-installer.cmd`. On Linux, `makensis installer/PegasusFlatPanel.nsi` works the same
 after the `dotnet build`. The output is `installer\PegasusFlatPanelSetup-1.0.0.exe`.
 
+### GitHub Actions
+
+`.github/workflows/build.yml` runs the tests and builds the driver and the installer on every
+push and pull request. Download the installer from the run's **Artifacts** section on the
+Actions tab.
+
+To publish a release, push a version tag. The workflow then creates a GitHub Release with
+`PegasusFlatPanelSetup-<version>.exe` attached:
+
+```bash
+git tag v1.1.0 && git push origin v1.1.0
+```
+
+Tags must look like `v1.2.3`.
+
 ## Install
 
 1. Install the ASCOM Platform and the Pegasus Astro ASCOM drivers (Unity or the stand-alone driver for your box).
@@ -74,4 +89,5 @@ src/DriverSettings.cs      settings stored in the ASCOM Profile
 src/SetupDialogForm.cs     setup dialog (choose driver, list outputs, test)
 tests/                     xUnit tests for BrightnessMapping
 installer/                 NSIS installer script (builds PegasusFlatPanelSetup-<version>.exe)
+.github/workflows/         CI: test, build, installer artifact, releases on v* tags
 ```

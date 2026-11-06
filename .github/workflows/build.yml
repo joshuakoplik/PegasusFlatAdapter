@@ -1,0 +1,82 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # The driver targets .NET Framework 4.8 but builds fine on Linux with the
+    # reference-assembly package, and NSIS (makensis) runs natively on Linux.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Work out version
+        id: version
+        shell: bash
+        run: |
+          # Tags like v1.2.3 set the version; everything else builds as 1.0.0.<run number>.
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            v="${GITHUB_REF_NAME#v}"
+            if ! [[ "$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Tag must look like v1.2.3 (got $GITHUB_REF_NAME)"; exit 1
+            fi
+            echo "version=$v" >> "$GITHUB_OUTPUT"
+            echo "file_version=$v.0" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=1.0.0" >> "$GITHUB_OUTPUT"
+            echo "file_version=1.0.0.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Test
+        run: dotnet test tests/MappingTests.csproj -c Release
+
+      - name: Build driver
+        run: >
+          dotnet build src/PegasusFlatPanel.csproj -c Release
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:FileVersion=${{ steps.version.outputs.file_version }}
+
+      - name: Install NSIS
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq nsis
+
+      - name: Build installer
+        run: makensis -V2 -DVERSION=${{ steps.version.outputs.version }} installer/PegasusFlatPanel.nsi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PegasusFlatPanelSetup-${{ steps.version.outputs.file_version }}
+          path: |
+            installer/PegasusFlatPanelSetup-*.exe
+            src/bin/Release/net48/*.dll
+          if-no-files-found: error
+
+  release:
+    # Pushing a tag such as v1.1.0 publishes a GitHub Release with the installer attached.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" dist/installer/PegasusFlatPanelSetup-*.exe
+          --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
